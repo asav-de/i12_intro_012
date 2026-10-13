@@ -54,9 +54,12 @@ class AppStateNotifier extends Notifier<AppState> {
     state = state.copyWith(todos: newTodos);
   }
 
-  /// Deletes the given todos from the list.
-  void deleteTodos(List<Todo> todos) {
-    if (state.askForDeletionConfirmation) {}
+  /// Deletes the todos with the given [ids] from the list.
+  void deleteTodos(Set<String> ids) {
+    state = state.copyWith(
+      todos: state.todos.where((todo) => !ids.contains(todo.id)).toList(),
+    );
+    saveState();
   }
 
   /// Switches between light and dark theme.
