@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:i12_into_012/models/app_state.dart';
 import 'package:i12_into_012/models/todo.dart';
+import 'package:i12_into_012/services/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
 /// Provider for the application's state.
@@ -11,19 +12,19 @@ final NotifierProvider<AppStateNotifier, AppState> refAppState =
 class AppStateNotifier extends Notifier<AppState> {
   static const Uuid _uuid = Uuid();
 
-  /// Creates the initial [AppState] with sample todos.
+  /// Reads and writes the [AppState] to a file.
+  final StorageService _storage = StorageService();
+
+  /// Creates the default [AppState] and starts loading the saved one.
   @override
-  AppState build() => const AppState(
-    todos: [
-      Todo(id: '1', text: 'Todo starten', isCompleted: true),
-      Todo(
-        id: '2',
-        text: 'Todo to Json',
-      ),
-    ],
-    isDarkMode: false,
-    askForDeletionConfirmation: false,
-  );
+  AppState build() {
+    loadState();
+    return const AppState(
+      todos: [],
+      isDarkMode: false,
+      askForDeletionConfirmation: true,
+    );
+  }
 
   /// Adds a new todo with the given [text].
   void addTodo(String text) {
@@ -45,13 +46,14 @@ class AppStateNotifier extends Notifier<AppState> {
     final newTodo = todo.copyWith(isCompleted: !todo.isCompleted);
     final newTodos = <Todo>[];
     for (final t in state.todos) {
-      if (t == todo) {
+      if (t.id == todo.id) {
         newTodos.add(newTodo);
       } else {
         newTodos.add(t);
       }
     }
     state = state.copyWith(todos: newTodos);
+    saveState();
   }
 
   /// Deletes the todos with the given [ids] from the list.
@@ -67,6 +69,7 @@ class AppStateNotifier extends Notifier<AppState> {
     state = state.copyWith(
       isDarkMode: !state.isDarkMode,
     );
+    saveState();
   }
 
   /// Toggles whether the user is asked to confirm before deleting a todo.
@@ -74,11 +77,17 @@ class AppStateNotifier extends Notifier<AppState> {
     state = state.copyWith(
       askForDeletionConfirmation: !state.askForDeletionConfirmation,
     );
+    saveState();
   }
 
   /// Loads the [AppState] from storage.
-  void loadState() {}
+  Future<void> loadState() async {
+    final loaded = await _storage.loadAppState();
+    if (loaded != null) state = loaded;
+  }
 
   /// Saves the current [AppState] to storage.
-  void saveState() {}
+  Future<void> saveState() async {
+    await _storage.saveAppState(state);
+  }
 }
