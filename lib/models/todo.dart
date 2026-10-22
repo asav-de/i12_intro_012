@@ -1,20 +1,44 @@
+import 'package:meta/meta.dart';
+
+/// Represents an immutable todo item with a unique [id], [text] content,
+/// and completion status [isCompleted].
+@immutable
 class Todo {
-  final int id;
+  /// Unique identifier of the todo.
+  final String id;
+
+  /// Content of the todo.
   final String text;
+
+  /// Whether the todo is completed.
   final bool isCompleted;
 
-  Todo({required this.id, required this.text, required this.isCompleted});
+  /// Creates a [Todo] with the given values.
+  const Todo({
+    required this.id,
+    required this.text,
+    this.isCompleted = false,
+  });
 
-  Map<String, dynamic> toJson() => {};
+  /// Converts this [Todo] to a JSON map for storage.
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'text': text,
+    'isCompleted': isCompleted,
+  };
 
+  /// Creates a [Todo] from a JSON map.
   factory Todo.fromJson(Map<String, dynamic> json) => Todo(
-    id: 0,
-    text: '',
-    isCompleted: false,
+    id: json['id'] as String,
+    text: json['text'] as String,
+    isCompleted: json['isCompleted'] as bool,
   );
 
-  Todo copyWidth({
-    int? id,
+  /// Returns a copy of this [Todo] with the given fields replaced.
+  ///
+  /// Fields that are not provided keep their current values.
+  Todo copyWith({
+    String? id,
     String? text,
     bool? isCompleted,
   }) => Todo(
@@ -22,6 +46,16 @@ class Todo {
     text: text ?? this.text,
     isCompleted: isCompleted ?? this.isCompleted,
   );
+
+  @override
+  bool operator ==(Object other) =>
+      other is Todo &&
+      id == other.id &&
+      text == other.text &&
+      isCompleted == other.isCompleted;
+
+  @override
+  int get hashCode => Object.hash(id, text, isCompleted);
 }
 
 /*
