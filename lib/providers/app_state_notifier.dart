@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:i12_into_012/models/app_state.dart';
 import 'package:i12_into_012/models/todo.dart';
-import 'package:i12_into_012/providers/local_json_notifier.dart';
+import 'package:i12_into_012/providers/sqflite_notifier.dart';
 
 /// Provider for the application's state.
 final NotifierProvider<AppStateNotifier, AppState> refAppState =
     // Switch the storage strategy here.
-    NotifierProvider<AppStateNotifier, AppState>(LocalJsonNotifier.new);
+    NotifierProvider<AppStateNotifier, AppState>(SqfliteNotifier.new);
 
 /// Interface for managing the [AppState].
 abstract class AppStateNotifier extends Notifier<AppState> {
